@@ -1,7 +1,17 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+app.use(morgan('tiny'));
+
+morgan.token("body", function (req, res) {
+  return JSON.stringify(req.body);
+});
+
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 let persons = [{
         "name": "Arto Hellas",
@@ -47,9 +57,9 @@ app.get("/api/persons/:id", (request, response) => {
     return index === id;
   });
   console.log(person);
-  
+
   if(person !== undefined) {
-      response.json(person);      
+      response.json(person);
   } else {
     console.log("not data found");
     response.send('<h3>Not data received</h3>').status(204).end();
@@ -66,8 +76,9 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
     const body = request.body;
 
+    // console.log(request);
     console.log(body);
-    
+
     const nameSearcher = persons.filter((person) => {
         if (person.name === body.name) {
             return response.status(400).json({
@@ -77,15 +88,13 @@ app.post('/api/persons', (request, response) => {
     })
 
     // console.log(nameSearcher);
-   
+
     if(!body.name || !body.number) {
         return response.status(400).json({
             error: 'name missing'
         })
     }
 
-    
-    
     const person = {
         name: body.name,
         number: body.number,
@@ -97,6 +106,11 @@ app.post('/api/persons', (request, response) => {
 
     response.json(person)
 })
+
+// app.post(
+//   "/api/persons",
+//   morgan.token('body', (req, res) => JSON.stringify(req.body))
+// );
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
