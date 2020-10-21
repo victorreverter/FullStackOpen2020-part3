@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
-const cors = require("cors")
+const Person = require('./models/person')
 
+const cors = require("cors")
 app.use(cors())
 
 app.use(express.json())
@@ -41,35 +43,83 @@ app.get('/', (req, res) => {
     res.send('<h1>Hello World!</h1>')
 })
 
+// ----------------------------------------------------------------------
+
+const mongoose = require('mongoose')
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+const url =
+  'mongodb+srv://qbanor:admin@cluster0.3fzty.mongodb.net/phonebook-app?retryWrites=true'
+
+mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
+
+const personSchema = new mongoose.Schema({
+    name: String,
+    number: Number,
+    id: Number
+})
+
+personSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
+// const Person = mongoose.model('Person', personSchema)
+
+// ----------------------------------------------------------------------
+
 app.get('/info', (req, res) => {
     const dateData = new Date();
     let mssg = `Phonebook has info for ${persons.length} people`;
     res.send('<h3>' + mssg + '</h3> <h3>' + dateData + '</h3>')
 })
 
-app.get('/api/persons', (req, res) => {
-    res.json(persons)
+// ----------------------------------------------------------------------
+
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
-app.get("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((person, index) => {
-    // console.log(index);
-    // console.log(id);
-    // console.log(person);
-    // console.log(index === id);
-    // console.log(person.id, typeof person.id, id, typeof id, person.id === id);
-    return index === id;
-  });
-  console.log(person);
+// ----------------------------------------------------------------------
 
-  if(person !== undefined) {
-      response.json(person);
-  } else {
-    console.log("not data found");
-    response.send('<h3>Not data received</h3>').status(204).end();
-  }
-});
+// app.get('/api/persons', (req, res) => {
+//     res.json(persons)
+// })
+
+// app.get("/api/persons/:id", (request, response) => {
+//   const id = Number(request.params.id);
+//   const person = persons.find((person, index) => {
+//     // console.log(index);
+//     // console.log(id);
+//     // console.log(person);
+//     // console.log(index === id);
+//     // console.log(person.id, typeof person.id, id, typeof id, person.id === id);
+//     return index === id;
+//   });
+//   console.log(person);
+
+//   if(person !== undefined) {
+//       response.json(person);
+//   } else {
+//     console.log("not data found");
+//     response.send('<h3>Not data received</h3>').status(204).end();
+//   }
+// });
+
+// ----------------------------------------------------------------------
+
+app.get('/api/persons/:id', (request, response) => {
+  Person.findById(request.params.id).then(person => {
+    response.json(person)
+  })
+})
+
+// ----------------------------------------------------------------------
 
 const generateId = () => {
     const maxId = persons.length > 0 ?
@@ -107,9 +157,19 @@ app.post('/api/persons', (request, response) => {
     }
     // console.log(person)
 
-    persons = persons.concat(person)
+    // persons = persons.concat(person)
 
-    response.json(person)
+    // response.json(person)
+
+    // ----------------------------------------------------------------------
+
+    person.save().then(savedPerson => {
+        console.log(savePerson)
+        response.json(savedPerson)
+    })
+
+    // ----------------------------------------------------------------------
+
 })
 
 // app.post(
@@ -126,7 +186,9 @@ app.delete("/api/persons/:id", (request, response) => {
   response.status(204).end();
 });
 
-const PORT = process.env.PORT || 3001
+// const PORT = process.env.PORT || 3001
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })

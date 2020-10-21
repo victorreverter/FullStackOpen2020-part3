@@ -25,9 +25,9 @@ mongoose.connect(url, {
 })
 
 const personSchema = new mongoose.Schema({
-    id: Number,
     name: String,
     number: String,
+    id: Number
 })
 
 const Person = mongoose.model('Person', personSchema)
@@ -38,9 +38,9 @@ const generateId = () => {
 
 if (process.argv.length === 5) {
     const person = new Person({
-        id: generateId(),
         name: name,
-        number: number
+        number: number,
+        id: generateId()
     })
 
     person.save().then(response => {
@@ -48,6 +48,7 @@ if (process.argv.length === 5) {
         mongoose.connection.close();
     })
 }
+
 if (process.argv.length === 3) {
     Person.find({}).then(result => {
         console.log('phonebook:')
