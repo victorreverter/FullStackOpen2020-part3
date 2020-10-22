@@ -56,6 +56,13 @@ const App = () => {
     setNewNumber(event.target.value);
   };
 
+  // const generateId = () => {
+  //     const maxId = persons.length > 0 ?
+  //         Math.max(...persons.map(n => n.id)) :
+  //         0;
+  //     return maxId + 1;
+  // }
+
   const handleClick = (event) => {
     // console.log(...persons);
     // console.log([...persons,{name: newName}]);
@@ -64,9 +71,11 @@ const App = () => {
     const newPerson = {
       name: newName,
       number: newNumber,
-      id: newName,
+      // id: generateId(),
+      id: Math.random() * 100000
     };
 
+    console.log(newPerson);
 
     if (persons.some((person) => person.name === newName && persons.some((person) => person.number === newNumber))) {
       
@@ -85,8 +94,14 @@ const App = () => {
 
           // console.log(persons);
 
+          // const newArr = persons.map((item) =>
+          //   item.id === returnedDat.id
+          //     ? { ...item, number: returnedDat.number }
+          //     : item
+          // );
+
           const newArr = persons.map((item) =>
-            item.id === returnedDat.id
+            item.name === returnedDat.name
               ? { ...item, number: returnedDat.number }
               : item
           );
@@ -110,8 +125,10 @@ const App = () => {
       // console.log("didn't exists");
       document.querySelector("#nameInput").value = "";
       document.querySelector("#numberInput").value = "";
-      setPersons([...persons, { name: newName, number: newNumber }]);
-      setNewFilterArr([...persons, { name: newName, number: newNumber }]);
+      setPersons([...persons, newPerson]);
+      setNewFilterArr([...persons, newPerson]);
+
+      // console.log(persons);
 
       agendaService.create(newPerson).then((returnedPersons) => {
         // console.log(returnedPersons);

@@ -49,6 +49,22 @@ if (process.argv.length === 5) {
     })
 }
 
+// This is for deleting entries
+if (process.argv.length === 6) {
+    // const person = new Person({
+    //     name: name,
+    //     number: number,
+    //     id: generateId()
+    // })
+
+    // person.save().then(response => {
+    //     console.log(`added ${name} number ${number}`);
+    //     mongoose.connection.close();
+    // })
+
+    Person.find({})
+}
+
 if (process.argv.length === 3) {
     Person.find({}).then(result => {
         console.log('phonebook:')
